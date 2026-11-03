@@ -338,6 +338,11 @@ main {
   height: 26px;
 }
 
+.logo-img {
+  width: 26px;
+  height: 26px;
+}
+
 /* UI REDESIGN: Pill-shaped glass navigation */
 .nav-pill {
   display: flex;
