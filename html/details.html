@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Details · Movie Watchlist</title>
+    <!-- UI REDESIGN: Inter font (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- UI REDESIGN: this page now also loads style.css (tokens, header, icons) before details.css -->
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/details.css" />
+  </head>
+  <body data-page="details">
+    <!-- UI REDESIGN: Global header — logo + glass pill navigation (no link is active on a details page) -->
+    <header class="site-header">
+      <div class="header-left">
+        <a class="back-link" href="homepage.html" aria-label="Back to home"
+          ><span class="icon i-arrow-left" aria-hidden="true"></span
+        ></a>
+        <a
+          id="logo"
+          class="brand"
+          href="homepage.html"
+          aria-label="Movie Watchlist — home"
+        >
+          <span class="brand-mark"
+            ><span class="icon i-clapper" aria-hidden="true"></span
+          ></span>
+        </a>
+      </div>
+      <nav id="nav" class="nav-pill" aria-label="Main navigation">
+        <a class="nav-link" href="homepage.html"
+          ><span class="icon i-home" aria-hidden="true"></span
+          ><span>Home</span></a
+        >
+        <a class="nav-link" href="movies.html"
+          ><span class="icon i-film" aria-hidden="true"></span
+          ><span>Movies</span></a
+        >
+        <a class="nav-link" href="series.html"
+          ><span class="icon i-tv" aria-hidden="true"></span
+          ><span>Shows</span></a
+        >
+        <a class="nav-link" href="watchlist.html"
+          ><span class="icon i-bookmark" aria-hidden="true"></span
+          ><span>My List</span></a
+        >
+        <span class="nav-divider" aria-hidden="true"></span>
+        <a
+          class="nav-link nav-search"
+          href="searchpage.html"
+          aria-label="Search"
+          ><span class="icon i-search" aria-hidden="true"></span
+          ><span class="nav-search-label">Search</span></a
+        >
+      </nav>
+    </header>
+
+    <main class="details-page">
+      <!-- Backdrop (UI REDESIGN: dark gradient overlay is added in details.css) -->
+      <section class="details-backdrop">
+        <img id="backdrop" src="" alt="Movie backdrop" />
+      </section>
+
+      <!-- Main details section -->
+      <section class="details-container">
+        <!-- Poster -->
+        <div class="details-poster">
+          <img id="poster" src="" alt="Movie poster" />
+        </div>
+
+        <!-- Information -->
+        <div class="details-info">
+          <h1 id="title">Loading title...</h1>
+
+          <!-- UI REDESIGN: meta values are now icon chips; the span IDs the JS fills are unchanged -->
+          <div class="details-meta">
+            <p class="meta-chip">
+              <span class="icon i-calendar" aria-hidden="true"></span>
+              <span class="meta-label">Release Date:</span>
+              <span id="release-date">N/A</span>
+            </p>
+
+            <p class="meta-chip meta-chip--rating">
+              <span class="icon i-star" aria-hidden="true"></span>
+              <span class="meta-label">Rating:</span>
+              <span id="rating">N/A</span>
+            </p>
+
+            <p class="meta-chip">
+              <span class="icon i-clock" aria-hidden="true"></span>
+              <span class="meta-label">Runtime:</span>
+              <span id="runtime">N/A</span>
+            </p>
+          </div>
+
+          <!-- Genres -->
+          <div class="details-genres">
+            <h3>Genres</h3>
+            <div id="genres">
+              <!-- Genres will be added dynamically -->
+            </div>
+          </div>
+
+          <!-- Overview -->
+          <div class="details-overview">
+            <h3>Overview</h3>
+            <p id="overview">Loading overview...</p>
+          </div>
+
+          <!-- UI REDESIGN: button icons are added with CSS because details.js sets the button text via textContent -->
+          <div class="details-actions">
+            <button id="watchlist-btn" type="button">Add to Watchlist</button>
+
+            <button id="watched-btn" type="button">Mark as Watched</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="../js/storage.js" defer></script>
+    <script src="../js/details.js" defer></script>
+  </body>
+</html>

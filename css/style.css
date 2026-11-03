@@ -1,0 +1,1330 @@
+/* =====================================================================
+   UI REDESIGN — Shared design system for every page
+   Table of contents
+     1. Design tokens (colors, spacing, radii, shadows, motion)
+     2. Icon library (CSS-mask icons, no external dependency)
+     3. Base / reset / utilities
+     4. Global header + glass pill navigation
+     5. Section headings, page titles, buttons
+     6. Media cards (shared by every page, styled purely from CSS)
+     7. Horizontal rows + scroll arrows (Home / Movies / Series)
+     8. Discover grids + filter dropdowns (Movies / Series)
+     9. My List pages (Watchlist / Watched) + empty states
+    10. Search page
+    11. Landing page (index.html) + footer
+    12. Responsive adjustments
+   ===================================================================== */
+
+/* =====================================================================
+   1. DESIGN TOKENS
+   ===================================================================== */
+:root {
+  /* UI REDESIGN: Dark cinematic palette */
+  --bg: #07080d;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-strong: rgba(255, 255, 255, 0.11);
+  --glass: rgba(16, 18, 26, 0.62);
+  --border: rgba(255, 255, 255, 0.13);
+  --text: #f4f5f8;
+  --text-dim: #a4a9ba;
+  --text-faint: #6f758a;
+  --star: #facc15;
+  --green: #3f8f2a;
+  --danger: #f87171;
+
+  /* UI REDESIGN: One radius scale so every component matches */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* UI REDESIGN: Layout + sizing */
+  --gutter: clamp(16px, 4vw, 64px);
+  --row-gap: clamp(12px, 1.6vw, 20px);
+  --row-card-w: clamp(138px, 14.5vw, 200px);
+  --row-card-w-landscape: clamp(240px, 24vw, 330px);
+  --grid-card-min: 168px;
+
+  /* UI REDESIGN: Shadows + motion */
+  --shadow-card: 0 12px 30px rgba(0, 0, 0, 0.45);
+  --shadow-hover: 0 22px 44px rgba(0, 0, 0, 0.6);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --t-fast: 0.18s;
+  --t-med: 0.32s;
+
+  /* UI REDESIGN: Per-page ambient glow (swapped below by body[data-page]) */
+  --glow-a: rgba(86, 104, 150, 0.34);
+  --glow-b: rgba(40, 58, 96, 0.28);
+}
+
+/* UI REDESIGN: Each page gets its own ambient colour, same design language */
+body[data-page="movies"] {
+  --glow-a: rgba(190, 30, 40, 0.3);
+  --glow-b: rgba(110, 20, 30, 0.22);
+}
+body[data-page="series"] {
+  --glow-a: rgba(24, 150, 150, 0.32);
+  --glow-b: rgba(20, 90, 110, 0.24);
+}
+body[data-page="search"],
+body[data-page="watchlist"],
+body[data-page="watched"] {
+  --glow-a: rgba(70, 190, 40, 0.36);
+  --glow-b: rgba(20, 100, 40, 0.3);
+}
+body[data-page="landing"] {
+  --glow-a: rgba(120, 90, 220, 0.34);
+  --glow-b: rgba(190, 40, 80, 0.22);
+}
+
+/* =====================================================================
+   2. ICON LIBRARY
+   UI REDESIGN: Lucide-style icons embedded as CSS masks. Usage in HTML:
+   <span class="icon i-home"></span>  — colour follows the text colour.
+   Pseudo-elements reuse the same variables, so icons survive JS that
+   replaces a button's textContent (e.g. the details page buttons).
+   ===================================================================== */
+:root {
+  --ico-clapper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z'/%3E%3Cpath d='m6.2 5.3 3.1 3.9'/%3E%3Cpath d='m12.4 3.4 3.1 4'/%3E%3Cpath d='M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z'/%3E%3C/svg%3E");
+  --ico-home: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8'/%3E%3Cpath d='M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E");
+  --ico-film: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2'/%3E%3Cpath d='M7 3v18'/%3E%3Cpath d='M3 7.5h4'/%3E%3Cpath d='M3 12h18'/%3E%3Cpath d='M3 16.5h4'/%3E%3Cpath d='M17 3v18'/%3E%3Cpath d='M17 7.5h4'/%3E%3Cpath d='M17 16.5h4'/%3E%3C/svg%3E");
+  --ico-tv: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='20' height='15' x='2' y='7' rx='2' ry='2'/%3E%3Cpolyline points='17 2 12 7 7 2'/%3E%3C/svg%3E");
+  --ico-bookmark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z'/%3E%3C/svg%3E");
+  --ico-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+  --ico-chevron-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
+  --ico-chevron-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+  --ico-arrow-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 19-7-7 7-7'/%3E%3Cpath d='M19 12H5'/%3E%3C/svg%3E");
+  --ico-arrow-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E");
+  --ico-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/%3E%3C/svg%3E");
+  --ico-calendar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4'/%3E%3Cpath d='M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E");
+  --ico-clock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E");
+  --ico-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  --ico-trash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6'/%3E%3Cpath d='M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2'/%3E%3C/svg%3E");
+  --ico-list: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h.01'/%3E%3Cpath d='M3 18h.01'/%3E%3Cpath d='M3 6h.01'/%3E%3Cpath d='M8 12h13'/%3E%3Cpath d='M8 18h13'/%3E%3Cpath d='M8 6h13'/%3E%3C/svg%3E");
+  --ico-compass: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z'/%3E%3C/svg%3E");
+
+  /* Coloured helper images used as backgrounds (not masks) */
+  --bg-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m1 1 6 6 6-6'/%3E%3C/svg%3E");
+  --bg-card-open: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Ccircle cx='26' cy='26' r='25' fill='white' fill-opacity='.16' stroke='white' stroke-opacity='.55'/%3E%3Cpath d='M20 32 32 20M22 20h10v10' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --bg-poster-missing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300' viewBox='0 0 200 300'%3E%3Crect width='200' height='300' fill='%2314161e'/%3E%3Cg transform='translate(76 126) scale(2)' fill='none' stroke='%23596077' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2' transform='translate(-3 -3)'/%3E%3Cpath d='M4 0v18M0 4.5h4M0 9h18M0 13.5h4M14 0v18M14 4.5h4M14 13.5h4'/%3E%3C/g%3E%3C/svg%3E");
+  --bg-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1.25em;
+  height: 1.25em;
+  background-color: currentColor;
+  -webkit-mask: var(--ico) center / contain no-repeat;
+  mask: var(--ico) center / contain no-repeat;
+}
+.i-clapper {
+  --ico: var(--ico-clapper);
+}
+.i-home {
+  --ico: var(--ico-home);
+}
+.i-film {
+  --ico: var(--ico-film);
+}
+.i-tv {
+  --ico: var(--ico-tv);
+}
+.i-bookmark {
+  --ico: var(--ico-bookmark);
+}
+.i-search {
+  --ico: var(--ico-search);
+}
+.i-chevron-left {
+  --ico: var(--ico-chevron-left);
+}
+.i-chevron-right {
+  --ico: var(--ico-chevron-right);
+}
+.i-arrow-left {
+  --ico: var(--ico-arrow-left);
+}
+.i-arrow-right {
+  --ico: var(--ico-arrow-right);
+}
+.i-star {
+  --ico: var(--ico-star);
+}
+.i-calendar {
+  --ico: var(--ico-calendar);
+}
+.i-clock {
+  --ico: var(--ico-clock);
+}
+.i-check {
+  --ico: var(--ico-check);
+}
+.i-trash {
+  --ico: var(--ico-trash);
+}
+.i-list {
+  --ico: var(--ico-list);
+}
+.i-compass {
+  --ico: var(--ico-compass);
+}
+
+/* =====================================================================
+   3. BASE / RESET / UTILITIES
+   ===================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--bg);
+  /* UI REDESIGN: Two soft radial glows replace image backgrounds (no extra assets) */
+  background-image:
+    radial-gradient(60% 55% at 88% 0%, var(--glow-a), transparent 70%),
+    radial-gradient(55% 45% at 0% 100%, var(--glow-b), transparent 70%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* UI REDESIGN: Very subtle film-grain texture over the background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: var(--bg-noise);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+img {
+  display: block;
+  max-width: 100%;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button,
+select,
+input {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+}
+
+/* UI REDESIGN: Keeps the [hidden] attribute working even on elements that set display:flex */
+[hidden] {
+  display: none !important;
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* UI REDESIGN: Page content wrapper (overflow-x: clip stops horizontal scrollbars without breaking sticky) */
+main {
+  padding: 8px var(--gutter) 72px;
+  overflow-x: clip;
+}
+
+/* =====================================================================
+   4. GLOBAL HEADER + GLASS PILL NAVIGATION
+   ===================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px var(--gutter);
+  /* soft fade so content scrolling underneath stays readable */
+  background: linear-gradient(180deg, rgba(7, 8, 13, 0.72), rgba(7, 8, 13, 0));
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* UI REDESIGN: Round back button (shown on inner pages) */
+.back-link {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  transition:
+    background var(--t-fast),
+    transform var(--t-fast);
+}
+.back-link:hover {
+  background: var(--surface-strong);
+  transform: translateX(-2px);
+}
+
+/* UI REDESIGN: Clapperboard logo tile */
+.brand {
+  display: inline-flex;
+  align-items: center;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: #0b0c10;
+  background: linear-gradient(145deg, #ffffff, #d5d9e6);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  transition: transform var(--t-med) var(--ease);
+}
+.brand:hover .brand-mark {
+  transform: rotate(-6deg) scale(1.05);
+}
+.brand-mark .icon {
+  width: 26px;
+  height: 26px;
+}
+
+/* UI REDESIGN: Pill-shaped glass navigation */
+.nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  white-space: nowrap;
+  transition:
+    color var(--t-fast),
+    background var(--t-fast),
+    box-shadow var(--t-fast);
+}
+.nav-link:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+/* UI REDESIGN: Active page = contrasting light pill (as in the references) */
+.nav-link.is-active,
+.nav-link.is-active:hover {
+  color: #0b0c10;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.18);
+}
+
+/* Desktop: icons only appear on the active item and on the search button */
+.nav-link .icon {
+  display: none;
+}
+.nav-link.is-active .icon,
+.nav-search .icon {
+  display: inline-block;
+}
+
+.nav-divider {
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: var(--border);
+}
+
+/* Search = round icon button on desktop */
+.nav-search {
+  padding: 10px;
+}
+.nav-search .nav-search-label {
+  display: none;
+}
+
+/* =====================================================================
+   5. SECTION HEADINGS, PAGE TITLES, BUTTONS
+   ===================================================================== */
+.media-section {
+  margin-top: clamp(28px, 5vw, 56px);
+}
+
+/* UI REDESIGN: Section heading row with optional "View All" link */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.section-head h2 {
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition: color var(--t-fast);
+}
+.view-all .icon {
+  width: 1.05em;
+  height: 1.05em;
+  transition: transform var(--t-fast);
+}
+.view-all:hover {
+  color: var(--text);
+}
+.view-all:hover .icon {
+  transform: translateX(3px);
+}
+
+/* UI REDESIGN: Large page title (Movies / TV Series) */
+.page-hero {
+  padding-top: clamp(4px, 1.5vw, 16px);
+}
+.page-hero h1 {
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+.page-hero p {
+  margin-top: 12px;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  color: var(--text-dim);
+}
+
+/* UI REDESIGN: Reusable buttons (landing page, empty states) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0b0c10;
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(255, 255, 255, 0.18);
+  transition:
+    transform var(--t-fast),
+    box-shadow var(--t-fast);
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 34px rgba(255, 255, 255, 0.3);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-ghost {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.btn-ghost:hover {
+  background: var(--surface-strong);
+  box-shadow: none;
+}
+
+/* =====================================================================
+   6. MEDIA CARDS
+   JS builds each card as: .item-card > img, h3 (title), p (year), p (rating)
+   UI REDESIGN: The layout below is pure CSS — poster on top, then a title
+   line, then a "★ rating · year · type" line. The type word comes from
+   data-media-type so TV cards never say "Movie".
+   ===================================================================== */
+.item-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-content: start;
+  row-gap: 3px;
+  min-width: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--t-med) var(--ease);
+}
+
+.item-card > img {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  /* shimmer shown while the poster loads */
+  background: linear-gradient(110deg, #141720 30%, #1e2230 50%, #141720 70%) 0
+    0 / 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  transition:
+    box-shadow var(--t-med) var(--ease),
+    border-color var(--t-med);
+}
+
+/* Poster failed to load (set by ui.js) — show a neutral placeholder */
+.item-card > img.is-broken {
+  content: var(--bg-poster-missing);
+  animation: none;
+}
+
+.item-card h3 {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-card p {
+  grid-row: 3;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.item-card p:empty {
+  display: none;
+}
+
+/* rating (second <p>) comes first visually */
+.item-card p:nth-of-type(2) {
+  grid-column: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.item-card p:nth-of-type(2)::before {
+  content: "";
+  width: 0.95em;
+  height: 0.95em;
+  background: var(--star);
+  -webkit-mask: var(--ico-star) center / contain no-repeat;
+  mask: var(--ico-star) center / contain no-repeat;
+}
+
+/* year (first <p>) + type label */
+.item-card p:nth-of-type(1) {
+  grid-column: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.item-card p:nth-of-type(1)::before {
+  content: "·";
+  margin: 0 0.5em;
+  color: var(--text-faint);
+}
+.item-card[data-media-type="movie"] p:nth-of-type(1)::after {
+  content: "·\00a0Movie";
+  margin-left: 0.5em;
+  color: var(--text-faint);
+}
+.item-card[data-media-type="tv"] p:nth-of-type(1)::after {
+  content: "·\00a0Series";
+  margin-left: 0.5em;
+  color: var(--text-faint);
+}
+/* when there is no rating, drop the leading dot */
+.item-card.no-rating p:nth-of-type(1)::before {
+  display: none;
+}
+
+/* UI REDESIGN: Hover — lift, brighten border and reveal an "open" overlay on the poster */
+.item-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-md);
+  background:
+    var(--bg-card-open) center / 52px no-repeat,
+    linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.08) 60%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-med) var(--ease);
+}
+.item-card:hover {
+  transform: translateY(-6px);
+}
+.item-card:hover > img {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-hover);
+}
+.item-card:hover::after {
+  opacity: 1;
+}
+
+/* UI REDESIGN: Landscape card variant (Upcoming / Airing rows, built in ui.js) */
+.item-card.landscape > img,
+.item-card.landscape::after {
+  aspect-ratio: 16 / 9;
+}
+.item-card.landscape > img {
+  object-position: center 20%;
+}
+
+/* "Coming Soon" / "Airing Today" badge */
+.card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--green);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* UI REDESIGN: Remove button added by watchlist.js / watchedList.js (text comes from JS) */
+.remove-from-list {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--danger);
+  background: rgba(248, 113, 113, 0.1);
+  transition:
+    background var(--t-fast),
+    color var(--t-fast),
+    border-color var(--t-fast);
+}
+.remove-from-list::before {
+  content: "";
+  width: 1.1em;
+  height: 1.1em;
+  background: currentColor;
+  -webkit-mask: var(--ico-trash) center / contain no-repeat;
+  mask: var(--ico-trash) center / contain no-repeat;
+}
+.remove-from-list:hover {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.85);
+  border-color: transparent;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* =====================================================================
+   7. HORIZONTAL ROWS + SCROLL ARROWS
+   Markup: .row-scroller > button.prev + .media-container + button.next
+   ===================================================================== */
+.media-container {
+  display: flex;
+  gap: var(--row-gap);
+}
+.media-container > div {
+  flex: 0 0 var(--row-card-w);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.media-container.landscape-row > div {
+  flex-basis: var(--row-card-w-landscape);
+}
+
+.row-scroller {
+  position: relative;
+  /* vertical centre of a poster, used to place the arrows */
+  --btn-top: calc(var(--row-card-w) * 0.75 - 22px);
+}
+.row-scroller--landscape {
+  --btn-top: calc(var(--row-card-w-landscape) * 0.28 - 22px);
+}
+
+/* UI REDESIGN: Full-bleed scrolling row; padding leaves room for the hover lift + shadow */
+.row-scroller .media-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 18px var(--gutter) 30px;
+  margin: -18px calc(var(--gutter) * -1) -30px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+}
+.row-scroller .media-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-btn {
+  position: absolute;
+  top: var(--btn-top);
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: #fff;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity var(--t-med),
+    transform var(--t-med) var(--ease),
+    background var(--t-fast);
+}
+.scroll-btn.prev {
+  left: -6px;
+}
+.scroll-btn.next {
+  right: -6px;
+}
+.scroll-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.row-scroller:hover .scroll-btn,
+.scroll-btn:focus-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+/* hide the arrow that has nowhere to go (classes toggled by ui.js) */
+.row-scroller.is-start .scroll-btn.prev,
+.row-scroller.is-end .scroll-btn.next {
+  display: none;
+}
+
+/* touch devices swipe instead */
+@media (hover: none) {
+  .scroll-btn {
+    display: none;
+  }
+}
+
+/* =====================================================================
+   8. DISCOVER GRIDS + FILTER DROPDOWNS
+   ===================================================================== */
+/* UI REDESIGN: Responsive poster grid — column count adapts to the screen width */
+.movie-discover,
+.search-results,
+.series-discover {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--grid-card-min), 1fr));
+  gap: 30px 18px;
+}
+
+/* infinite-scroll sentinels (observed by script.js) */
+#movies-loader,
+#series-loader {
+  height: 1px;
+}
+
+/* UI REDESIGN: Section header that also holds the filter dropdowns (upper-right) */
+.section-head--filters {
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* UI REDESIGN: Rounded pill dropdowns (native arrow replaced) */
+.filter-bar select {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 44px;
+  min-width: 140px;
+  padding: 0 42px 0 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--glass) var(--bg-chevron) right 16px center / 12px no-repeat;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+  transition:
+    border-color var(--t-fast),
+    background-color var(--t-fast);
+}
+.filter-bar select:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  background-color: var(--surface-strong);
+}
+.filter-bar select option {
+  color: #fff;
+  background: #12141c;
+}
+
+/* =====================================================================
+   9. MY LIST PAGES (Watchlist / Watched) + EMPTY STATES
+   ===================================================================== */
+.list-page {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.list-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.list-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.list-title .icon {
+  width: clamp(28px, 4vw, 38px);
+  height: clamp(28px, 4vw, 38px);
+  color: var(--text-dim);
+}
+.list-title h1 {
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.list-heading p {
+  margin-top: 10px;
+  color: var(--text-dim);
+}
+
+/* UI REDESIGN: Segmented tabs that link between Watchlist and Watched */
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition:
+    color var(--t-fast),
+    background var(--t-fast);
+}
+.tab:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+.tab.is-active,
+.tab.is-active:hover {
+  color: #0b0c10;
+  background: #fff;
+}
+.tab-count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.16);
+}
+.tab.is-active .tab-count {
+  background: rgba(0, 0, 0, 0.12);
+}
+.tab-count:empty {
+  display: none;
+}
+
+/* UI REDESIGN: On list pages the same container becomes a poster grid instead of a scrolling row */
+.list-page .media-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--grid-card-min), 1fr));
+  gap: 30px 18px;
+}
+
+/* UI REDESIGN: Empty state card (script toggles the [hidden] attribute) */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: clamp(36px, 7vw, 64px) 24px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.025)
+  );
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+}
+.empty-icon .icon {
+  width: 28px;
+  height: 28px;
+}
+.empty-state h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.empty-state p {
+  max-width: 38ch;
+  color: var(--text-dim);
+}
+.empty-state .btn {
+  margin-top: 14px;
+}
+
+/* =====================================================================
+   10. SEARCH PAGE
+   ===================================================================== */
+.search-page {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+#search-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  padding-top: clamp(8px, 4vw, 40px);
+  text-align: center;
+}
+#search-section h2 {
+  font-size: clamp(1.7rem, 5vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+/* UI REDESIGN: Large rounded search field with leading icon */
+.search-field {
+  position: relative;
+  width: min(100%, 680px);
+}
+.search-field .icon {
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  width: 1.3em;
+  height: 1.3em;
+  color: var(--text-dim);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+#search-input {
+  width: 100%;
+  height: 58px;
+  padding: 0 24px 0 56px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
+}
+#search-input::placeholder {
+  color: var(--text-faint);
+}
+#search-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.1),
+    0 12px 34px rgba(0, 0, 0, 0.35);
+}
+
+.results-title {
+  margin: clamp(32px, 6vw, 56px) 0 22px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+/* UI REDESIGN: Loading / empty / searching states (data-state is set by ui.js) */
+.search-results[data-state="loading"]::before {
+  content: "";
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 38px;
+  height: 38px;
+  margin: 56px 0;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.search-results[data-state="empty"]::before {
+  content: "";
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 54px;
+  height: 54px;
+  margin-top: 48px;
+  background: var(--text-faint);
+  -webkit-mask: var(--ico-search) center / contain no-repeat;
+  mask: var(--ico-search) center / contain no-repeat;
+}
+.search-results[data-state="empty"]::after {
+  content: "No results found — try a different title.";
+  grid-column: 1 / -1;
+  padding: 8px 0 48px;
+  text-align: center;
+  color: var(--text-dim);
+}
+.search-results[data-state="searching"] {
+  opacity: 0.45;
+  pointer-events: none;
+  transition: opacity var(--t-fast);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =====================================================================
+   11. LANDING PAGE (index.html) + FOOTER
+   ===================================================================== */
+.main-page {
+  display: grid;
+  place-items: center;
+  min-height: 72vh;
+  min-height: 72dvh;
+  text-align: center;
+}
+.hero-content {
+  max-width: 760px;
+}
+.hero-content h1 {
+  font-size: clamp(2.4rem, 8vw, 5rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  background: linear-gradient(180deg, #ffffff 30%, #9aa0b8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-content p {
+  margin: 20px auto 32px;
+  max-width: 48ch;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  color: var(--text-dim);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--gutter) 72px;
+}
+.feature-card {
+  padding: 26px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.025)
+  );
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  transition:
+    transform var(--t-med) var(--ease),
+    border-color var(--t-med);
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.feature-card .empty-icon {
+  margin-bottom: 14px;
+}
+.feature-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.feature-card p {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+}
+
+/* Footers (landing page + homepage disclaimer) */
+footer {
+  padding: 28px var(--gutter) 40px;
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text-faint);
+  border-top: 1px solid var(--border);
+}
+.footer-homepage {
+  max-width: 900px;
+  margin: 0 auto;
+  border-top: 0;
+}
+
+/* UI REDESIGN: Elegant designer credit */
+.designed-by {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  color: #85889a;
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 250ms ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.designed-by span {
+  color: #c4b5fd;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+}
+
+.designed-by:hover {
+  color: #ffffff;
+}
+
+.designed-by span:hover {
+  color: #a78bfa;
+}
+
+/* =====================================================================
+   12. RESPONSIVE ADJUSTMENTS
+   ===================================================================== */
+@media (max-width: 900px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* UI REDESIGN: Mobile — navigation becomes a floating glass bar at the bottom of the screen
+   (thumb-friendly and never overflows) instead of a squeezed copy of the desktop pill */
+@media (max-width: 720px) {
+  body {
+    padding-bottom: 96px;
+  }
+
+  .nav-pill {
+    position: fixed;
+    left: 50%;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: 440px;
+    justify-content: space-between;
+    gap: 2px;
+    padding: 6px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  }
+  .nav-link {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 4px;
+    font-size: 0.66rem;
+  }
+  .nav-link .icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+  }
+  .nav-divider {
+    display: none;
+  }
+  .nav-search {
+    padding: 8px 4px;
+  }
+  .nav-search .nav-search-label {
+    display: inline;
+  }
+
+  .site-header {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  :root {
+    --grid-card-min: 140px;
+  }
+  .movie-discover,
+  .search-results,
+  .series-discover,
+  .list-page .media-container {
+    gap: 24px 12px;
+  }
+
+  .section-head--filters {
+    align-items: flex-start;
+  }
+  .filter-bar {
+    width: 100%;
+  }
+  .filter-bar select {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  .list-header {
+    align-items: flex-start;
+  }
+  .tabs {
+    width: 100%;
+  }
+  .tab {
+    flex: 1;
+    justify-content: center;
+    padding-inline: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .nav-link {
+    font-size: 0.6rem;
+  }
+  :root {
+    --grid-card-min: 128px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

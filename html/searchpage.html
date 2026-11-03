@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search · Movie Watchlist</title>
+    <link rel="icon" href="../assests/search.svg" />
+    <!-- UI REDESIGN: Inter font (Google Fonts) + shared stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body data-page="search">
+    <!-- UI REDESIGN: Global header — logo + glass pill navigation (same markup on every page; only the active link changes) -->
+    <header class="site-header">
+      <div class="header-left">
+        <a class="back-link" href="homepage.html" aria-label="Back to home"
+          ><span class="icon i-arrow-left" aria-hidden="true"></span
+        ></a>
+        <a
+          id="logo"
+          class="brand"
+          href="homepage.html"
+          aria-label="Movie Watchlist — home"
+        >
+          <span class="brand-mark"
+            ><span class="icon i-clapper" aria-hidden="true"></span
+          ></span>
+        </a>
+      </div>
+      <nav id="nav" class="nav-pill" aria-label="Main navigation">
+        <a class="nav-link" href="homepage.html"
+          ><span class="icon i-home" aria-hidden="true"></span
+          ><span>Home</span></a
+        >
+        <a class="nav-link" href="movies.html"
+          ><span class="icon i-film" aria-hidden="true"></span
+          ><span>Movies</span></a
+        >
+        <a class="nav-link" href="series.html"
+          ><span class="icon i-tv" aria-hidden="true"></span
+          ><span>Shows</span></a
+        >
+        <a class="nav-link" href="watchlist.html"
+          ><span class="icon i-bookmark" aria-hidden="true"></span
+          ><span>My List</span></a
+        >
+        <span class="nav-divider" aria-hidden="true"></span>
+        <a
+          class="nav-link nav-search is-active"
+          href="searchpage.html"
+          aria-label="Search"
+          aria-current="page"
+          ><span class="icon i-search" aria-hidden="true"></span
+          ><span class="nav-search-label">Search</span></a
+        >
+      </nav>
+    </header>
+
+    <main class="search-page">
+      <!-- UI REDESIGN: Centered heading + large rounded search field with icon -->
+      <section id="search-section">
+        <h2>Find your next favorite story</h2>
+        <div class="search-field">
+          <span class="icon i-search" aria-hidden="true"></span>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search Movies & TV Shows..."
+            autocomplete="off"
+            aria-label="Search movies and TV shows"
+          />
+        </div>
+      </section>
+
+      <section id="search-results-section">
+        <!-- UI REDESIGN: heading text is switched between "Trending" and "Results for ..." by ui.js -->
+        <h3 id="results-title" class="results-title">Trending This Week</h3>
+        <!-- UI REDESIGN: data-state drives the loading spinner / empty state in CSS (updated by ui.js) -->
+        <div id="search-results" class="search-results" data-state="loading">
+          <!-- Search results will be dynamically added here -->
+        </div>
+      </section>
+    </main>
+
+    <script src="../js/storage.js" defer></script>
+    <script src="../js/script.js"></script>
+    <!-- UI REDESIGN: new additive script (search loading/empty state). Loads after script.js -->
+    <script src="../js/ui.js" defer></script>
+  </body>
+</html>
